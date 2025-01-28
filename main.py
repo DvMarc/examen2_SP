@@ -1,6 +1,8 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
+import matplotlib.pyplot as plt
+import plotly.express as px
 
 if "opcion" not in st.session_state:
     st.session_state["opcion"] = "Home"
@@ -27,5 +29,24 @@ elif st.session_state["opcion"] == "Data":
     st.write("Estos datos son de la producción diaria del campo Volve. Se tienen datos de la producción de petróleo, gas y agua.")
     
 elif st.session_state["opcion"] == "Plots":
-    st.write("Aquí puedes ver las gráficas.")
+
+    st.write("### Gráficas de producción")
+
+    df['DATEPRD'] = pd.to_datetime(df['DATEPRD'])
+    df['Year'] = df['DATEPRD'].dt.year
+
+
+    fig1 = px.line(df, x='DATEPRD', y='BORE_OIL_VOL', color='WELL_BORE_CODE', title='Volumen de petróleo vs Tiempo por Pozo')
+    st.plotly_chart(fig1)
+
+    fig2 = px.line(df, x='DATEPRD', y='BORE_GAS_VOL', color='WELL_BORE_CODE', title='Volumen de gas vs Tiempo por Pozo')
+    st.plotly_chart(fig2)
+
+    fig3 = px.line(df, x='DATEPRD', y=['BORE_OIL_VOL', 'BORE_WAT_VOL'], title='Volumen de petróleo y agua vs Tiempo')
+    st.plotly_chart(fig3)
+
+    total_volumes = df.groupby('WELL_BORE_CODE')[['BORE_OIL_VOL', 'BORE_GAS_VOL', 'BORE_WAT_VOL']].sum().reset_index()
+    fig4 = px.bar(total_volumes, x='WELL_BORE_CODE', y=['BORE_OIL_VOL', 'BORE_GAS_VOL', 'BORE_WAT_VOL'], title='Producción total por pozo', barmode='group')
+    st.plotly_chart(fig4)
+
 
